@@ -7,6 +7,12 @@ use Auth;
 
 class SessionsController extends Controller
 {
+
+	public function _construct(){
+		$this->middleware('guest',[
+			'only'=>['create']
+		]);
+	}
 	//展现登陆页面
    public function create(){
    		return view('sessions.create');
@@ -20,7 +26,11 @@ class SessionsController extends Controller
 	   	]);
 	   	if(Auth::attempt($credentials,$request->has('remember'))){
 	   		session()->flash('success','欢迎回来');
-	   		return redirect()->route('users.show',[Auth::user()]);
+
+	   		$fallback=route('users.show',Auth::user());
+	   		return redirect()->intended($fallback);
+
+	   		// return redirect()->route('users.show',[Auth::user()]);
 	   	}else{
 	   		session()->flash('danger','失败，邮箱密码不匹配');
 	   		return redirect()->back()->withInput();
